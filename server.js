@@ -33,9 +33,26 @@ const mimeTypes = {
   ".ico": "image/x-icon",
 };
 
+function normalizeDatabaseUrl(rawUrl = "") {
+  const value = String(rawUrl || "").trim();
+  if (!value) return "";
+
+  try {
+    new URL(value);
+    return value;
+  } catch {
+    // Some pasted Supabase URLs include raw password characters like "?".
+    // Encode only the password portion so pg can parse the connection string.
+    const match = value.match(/^(postgres(?:ql)?:\/\/[^:]+:)(.*)@([^/]+)(\/.*)$/i);
+    if (!match) return value;
+    const [, prefix, password, host, path] = match;
+    return `${prefix}${encodeURIComponent(password)}@${host}${path}`;
+  }
+}
+
 const pool = process.env.DATABASE_URL
   ? new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString: normalizeDatabaseUrl(process.env.DATABASE_URL),
       ssl: process.env.PGSSL === "true" ? { rejectUnauthorized: false } : undefined,
     })
   : null;
