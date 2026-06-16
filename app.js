@@ -2239,7 +2239,9 @@ function render() {
   binder();
 }
 
-window.addEventListener("hashchange", render);
+if (typeof window !== "undefined") {
+  window.addEventListener("hashchange", render);
+}
 if (app) {
   bootstrapBackendState().then(render);
 }
