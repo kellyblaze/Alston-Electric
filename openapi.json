@@ -1,0 +1,217 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Alston Electric MVP API",
+    "version": "0.2.0",
+    "description": "Local backend API for the Alston Electric photo estimate MVP."
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Check backend health",
+        "responses": {
+          "200": {
+            "description": "Backend is running"
+          }
+        }
+      }
+    },
+    "/api/state": {
+      "get": {
+        "summary": "Load all local MVP state",
+        "description": "Returns estimate requests, pricing settings, and company settings from the local file-backed store.",
+        "responses": {
+          "200": {
+            "description": "Stored MVP state"
+          }
+        }
+      }
+    },
+    "/api/config": {
+      "get": {
+        "summary": "Load public frontend configuration",
+        "description": "Returns public base URL, Cal.com booking URL, and whether backend SMS credentials are configured.",
+        "responses": {
+          "200": {
+            "description": "Public configuration"
+          }
+        }
+      }
+    },
+    "/api/requests": {
+      "put": {
+        "summary": "Replace stored estimate requests",
+        "description": "Persists the current request list, including quote workflow state, timeline entries, and local demo media preview data.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["requests"],
+                "properties": {
+                  "requests": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Requests saved"
+          },
+          "400": {
+            "description": "Invalid request payload"
+          }
+        }
+      }
+    },
+    "/api/pricing": {
+      "put": {
+        "summary": "Save pricing settings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pricing": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Pricing settings saved"
+          }
+        }
+      }
+    },
+    "/api/company": {
+      "put": {
+        "summary": "Save company settings",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Company settings saved"
+          }
+        }
+      }
+    },
+    "/api/notifications/sms": {
+      "post": {
+        "summary": "Send or simulate an SMS notification",
+        "description": "Sends quote or more-photo SMS through Telnyx when credentials are configured. Otherwise logs a simulated SMS event to the request timeline.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["requestId"],
+                "properties": {
+                  "requestId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["quote", "morePhotos"]
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SMS sent or simulated"
+          },
+          "400": {
+            "description": "Missing request id"
+          }
+        }
+      }
+    },
+    "/api/quotes/{requestId}.pdf": {
+      "get": {
+        "summary": "Generate quote PDF",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Generated quote PDF",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Quote request not found"
+          }
+        }
+      }
+    },
+    "/api/webhooks/telnyx": {
+      "post": {
+        "summary": "Receive Telnyx messaging webhooks",
+        "description": "Receives Telnyx inbound message and delivery events. Delivery events are matched by Telnyx message id when available; inbound replies fall back to customer phone number matching.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook accepted"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+services:
+  alstonelectric:
+    image: alstonelectric
+    build:
+      context: .
+      dockerfile: ./Dockerfile
