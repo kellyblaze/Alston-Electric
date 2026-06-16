@@ -5,11 +5,14 @@ const STORAGE_KEYS = {
   auth: "alston-electric-auth",
 };
 
-const PUBLIC_BASE_URL = `${location.href.split("#")[0]}#`;
-const API_ENABLED = location.protocol === "http:" || location.protocol === "https:";
+const hasBrowserLocation = typeof location !== "undefined" && typeof location.href === "string";
+const browserHref = hasBrowserLocation ? location.href : "http://localhost/";
+const browserOrigin = browserHref.split("#")[0].replace(/\/$/, "");
+const PUBLIC_BASE_URL = `${browserOrigin}#`;
+const API_ENABLED = hasBrowserLocation && (location.protocol === "http:" || location.protocol === "https:");
 let suppressBackendSync = false;
 let appConfig = {
-  publicBaseUrl: location.href.split("#")[0].replace(/\/$/, ""),
+  publicBaseUrl: browserOrigin,
   calcomBookingUrl: "",
   caldiyBookingUrl: "",
   smsEnabled: false,
@@ -362,11 +365,11 @@ function formatMonthDayYear(value) {
 }
 
 function customerQuoteLink(request) {
-  return `${appConfig.publicBaseUrl || location.href.split("#")[0]}#/customer/quote?id=${encodeURIComponent(request.id)}`;
+  return `${appConfig.publicBaseUrl || browserOrigin}#/customer/quote?id=${encodeURIComponent(request.id)}`;
 }
 
 function morePhotosLink(request) {
-  return `${appConfig.publicBaseUrl || location.href.split("#")[0]}#/upload-more?id=${encodeURIComponent(request.id)}`;
+  return `${appConfig.publicBaseUrl || browserOrigin}#/upload-more?id=${encodeURIComponent(request.id)}`;
 }
 
 function getPricing() {
