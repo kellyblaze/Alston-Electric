@@ -1,5 +1,5 @@
 const { Readable, Writable } = require("node:stream");
-const { handleApi } = require("../server.js");
+const { handleApi } = require("../backend.js");
 
 function createNodeRequest(request) {
   const readable = request.body ? Readable.fromWeb(request.body) : Readable.from([]);
