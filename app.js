@@ -235,7 +235,8 @@ const defaultCompany = {
     "Draft estimates are reviewed before sending. Final pricing may change after on-site verification by a licensed electrician.",
 };
 
-const app = document.querySelector("#app");
+const hasBrowserDocument = typeof document !== "undefined";
+const app = hasBrowserDocument ? document.querySelector("#app") : null;
 
 function load(key, fallback) {
   try {
@@ -2239,4 +2240,6 @@ function render() {
 }
 
 window.addEventListener("hashchange", render);
-bootstrapBackendState().then(render);
+if (app) {
+  bootstrapBackendState().then(render);
+}
